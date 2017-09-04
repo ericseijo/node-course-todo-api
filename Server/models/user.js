@@ -61,6 +61,20 @@ UserSchema.methods.generateAuthToken = function () {
   });
 };
 
+UserSchema.methods.removeToken = function (token) {
+  user = this;
+
+  return user.update({
+    // $pull Let's you remove items from an array that meet certain criteria
+    $pull: {
+      tokens: {
+        token: token
+      }
+    }
+  });
+  
+};
+
 //.statics turns method into a model method as opposed to
 //.methods which creates an instance method
 UserSchema.statics.findByToken = function (token) {
