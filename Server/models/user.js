@@ -35,13 +35,16 @@ var UserSchema = new mongoose.Schema({
   }]
 });
 
+// Override .toJSON to only return what we want
 UserSchema.methods.toJSON = function () {
   var user = this;
-  var userObject = user.toObject();
+  var userObject = user.toObject(); // take mongoose var and convert it to object
 
   return _.pick(userObject, ['_id', 'email']);  //Only return this data
 };
 
+// Instance method
+// Arrow functions do not bind a this keyword
 UserSchema.methods.generateAuthToken = function () {
   var user = this;
   var access = 'auth';
@@ -52,11 +55,14 @@ UserSchema.methods.generateAuthToken = function () {
     token: token  
   });
 
+  // return value so can be chained
   return user.save().then(() => {
     return token;
   });
 };
 
+//.statics turns method into a model method as opposed to
+//.methods which creates an instance method
 UserSchema.statics.findByToken = function (token) {
   var User = this;
   var decoded; // undefined on purpose so that jwt can throw an error
@@ -67,6 +73,7 @@ UserSchema.statics.findByToken = function (token) {
     return Promise.reject();
   }
 
+  // return a promise so we can chain
   return User.findOne({
     '_id': decoded._id,
     'tokens.token': token,
